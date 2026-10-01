@@ -19,6 +19,25 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 5
 
+      - name: Test Telegram connectivity
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          response=$(curl --silent --show-error --fail-with-body \
+            --output /dev/null --write-out '%{http_code}' \
+            --request POST \
+            --url "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=TEST ONLY - SOLIS INDONESIAN GITHUB TRACKER. GitHub Actions can successfully send Telegram notifications. This is NOT an actual appointment alert.")
+
+          if [ "$response" = "200" ]; then
+            echo "Telegram connectivity test successful."
+          else
+            echo "Telegram connectivity test failed (HTTP $response)."
+            exit 1
+          fi
+
     steps:
       - name: Download tracker code
         uses: actions/checkout@v4
