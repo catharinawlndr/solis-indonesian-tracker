@@ -19,32 +19,6 @@ jobs:
     timeout-minutes: 5
 
     steps:
-      # STEP 1: Test Telegram connection
-      - name: Test Telegram connectivity
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-        run: |
-          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
-            echo "::error::Telegram secrets are missing."
-            exit 1
-          fi
-
-          response=$(curl --silent --show-error --fail-with-body \
-            --request POST \
-            --url "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-            --data-urlencode "text=TEST ONLY: SOLIS Indonesian GitHub Actions Telegram connection works!" \
-            --output /dev/null \
-            --write-out '%{http_code}')
-
-          if [ "$response" = "200" ]; then
-            echo "Telegram connectivity test successful!"
-          else
-            echo "::error::Telegram test failed. HTTP: $response"
-            exit 1
-          fi
-
       # STEP 2: Download tracker code
       - name: Download tracker code
         uses: actions/checkout@v4
