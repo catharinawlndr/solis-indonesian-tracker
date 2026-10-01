@@ -1,0 +1,53 @@
+
+name: SOLIS Indonesian Monitor
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: solis-indonesian-monitor
+  cancel-in-progress: false
+
+jobs:
+  check-availability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Download tracker code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Chromium browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Restore previous availability
+        uses: actions/cache/restore@v4
+        with:
+          path: solis-state.json
+          key: solis-state-${{ github.run_id }}
+          restore-keys: |
+            solis-state-
+
+      - name: Check SOLIS Indonesian calendar
+        run: npm run check
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
+      - name: Save latest availability
+        if: success()
+        uses: actions/cache/save@v4
+        with:
+          path: solis-state.json
+          key: solis-state-${{ github.run_id }}
