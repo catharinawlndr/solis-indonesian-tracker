@@ -1,0 +1,14 @@
+
+{
+  "name": "solis-indonesian-tracker",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Indonesian SOLIS appointment availability monitor",
+  "type": "module",
+  "scripts": {
+    "check": "node tracker.js"
+  },
+  "dependencies": {
+    "playwright": "1.58.2"
+  }
+}
