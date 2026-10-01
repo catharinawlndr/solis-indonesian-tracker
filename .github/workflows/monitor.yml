@@ -3,7 +3,10 @@ name: SOLIS Indonesian Monitor
 
 on:
   workflow_dispatch:
-
+  schedule:
+    - cron: '2-59/5 * * * *'
+      timezone: 'America/New_York'
+      
 permissions:
   contents: read
 
