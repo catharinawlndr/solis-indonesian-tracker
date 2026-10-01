@@ -1,11 +1,11 @@
-
 name: SOLIS Indonesian Monitor
 
 on:
   workflow_dispatch:
+
   schedule:
     - cron: '2-59/5 * * * *'
-      
+
 permissions:
   contents: read
 
@@ -19,57 +19,70 @@ jobs:
     timeout-minutes: 5
 
     steps:
+      # STEP 1: Test Telegram connection
       - name: Test Telegram connectivity
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
-          response=$(curl --silent --show-error --fail-with-body \
-            --output /dev/null --write-out '%{http_code}' \
-            --request POST \
-            --url "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
-            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
-            --data-urlencode "text=TEST ONLY - SOLIS INDONESIAN GITHUB TRACKER. GitHub Actions can successfully send Telegram notifications. This is NOT an actual appointment alert.")
-
-          if [ "$response" = "200" ]; then
-            echo "Telegram connectivity test successful."
-          else
-            echo "Telegram connectivity test failed (HTTP $response)."
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "::error::Telegram secrets are missing."
             exit 1
           fi
 
-    steps:
+          response=$(curl --silent --show-error --fail-with-body \
+            --request POST \
+            --url "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage" \
+            --data-urlencode "chat_id=${TELEGRAM_CHAT_ID}" \
+            --data-urlencode "text=TEST ONLY: SOLIS Indonesian GitHub Actions Telegram connection works!" \
+            --output /dev/null \
+            --write-out '%{http_code}')
+
+          if [ "$response" = "200" ]; then
+            echo "Telegram connectivity test successful!"
+          else
+            echo "::error::Telegram test failed. HTTP: $response"
+            exit 1
+          fi
+
+      # STEP 2: Download tracker code
       - name: Download tracker code
         uses: actions/checkout@v4
 
+      # STEP 3: Set up Node.js
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
+      # STEP 4: Install dependencies
       - name: Install dependencies
         run: npm install
 
+      # STEP 5: Install Chromium browser
       - name: Install Chromium browser
         run: npx playwright install --with-deps chromium
 
+      # STEP 6: Restore previous availability
       - name: Restore previous availability
         uses: actions/cache/restore@v4
         with:
-          path: solis-state.json
-          key: solis-state-${{ github.run_id }}
+          path: availability.json
+          key: solis-availability-${{ github.run_id }}
           restore-keys: |
-            solis-state-
+            solis-availability-
 
+      # STEP 7: Check SOLIS Indonesian calendar
       - name: Check SOLIS Indonesian calendar
-        run: npm run check
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: npm run check
 
+      # STEP 8: Save latest availability
       - name: Save latest availability
         if: success()
         uses: actions/cache/save@v4
         with:
-          path: solis-state.json
-          key: solis-state-${{ github.run_id }}
+          path: availability.json
+          key: solis-availability-${{ github.run_id }}
