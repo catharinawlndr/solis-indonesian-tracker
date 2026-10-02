@@ -211,14 +211,6 @@ async function main() {
 
         await saveState(current);
 
-    // ONE-TIME TEST: Remove this block after receiving the message.
-    await sendTelegram(
-      'TEST ONLY — SOLIS INDONESIAN TRACKER\n\n' +
-      'This message was sent by the actual GitHub calendar checker.\n\n' +
-      'Your Telegram notification connection is working.\n\n' +
-      'This is NOT an actual appointment opening.'
-    );
-
     log('Availability check completed successfully.');
 
   } finally {
