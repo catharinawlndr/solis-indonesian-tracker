@@ -219,16 +219,6 @@ async function main() {
   }
 }
 
-// TEMPORARY TELEGRAM TEST — REMOVE AFTER TESTING
-sendTelegram(
-  '🧪 TEST ONLY — SOLIS INDONESIAN TRACKER\n\n' +
-  'Your clickable booking link is working:\n\n' +
-  'https://utest-nyc-solis-id.youcanbook.me/\n\n' +
-  'This is NOT an actual appointment opening.'
-).catch(error => {
-  console.error(PREFIX, 'Telegram test failed:', error.message);
-});
-
 main().catch(error => {
   console.error(PREFIX, error.message);
   process.exitCode = 1;
