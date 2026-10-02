@@ -196,12 +196,13 @@ async function main() {
       log(`NEW SELECTABLE DATES: ${newDates.join(', ')}`);
 
       const message =
-        'SOLIS INDONESIAN — POSSIBLE OPENING!\n\n' +
-        'Newly selectable dates:\n' +
-        newDates.join('\n') +
-        '\n\nCheck actual appointment times and book:\n' +
-        CONFIG.url +
-        '\n\nAutomatically detected by GitHub Cloud Tracker.';
+  '🚨 SOLIS INDONESIAN — SLOT ALERT!\n\n' +
+  'Newly selectable dates:\n' +
+  newDates.join('\n') +
+  '\n\n👇 OPEN BOOKING CALENDAR NOW:\n' +
+  'https://utest-nyc-solis-id.youcanbook.me/\n\n' +
+  'Please verify the available appointment times and book immediately.\n\n' +
+  'Automatically detected by GitHub Cloud Tracker.';
 
       await sendTelegram(message);
 
@@ -217,6 +218,16 @@ async function main() {
     await browser.close();
   }
 }
+
+// TEMPORARY TELEGRAM TEST — REMOVE AFTER TESTING
+sendTelegram(
+  '🧪 TEST ONLY — SOLIS INDONESIAN TRACKER\n\n' +
+  'Your clickable booking link is working:\n\n' +
+  'https://utest-nyc-solis-id.youcanbook.me/\n\n' +
+  'This is NOT an actual appointment opening.'
+).catch(error => {
+  console.error(PREFIX, 'Telegram test failed:', error.message);
+});
 
 main().catch(error => {
   console.error(PREFIX, error.message);
